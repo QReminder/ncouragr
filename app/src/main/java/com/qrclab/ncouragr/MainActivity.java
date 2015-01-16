@@ -5,12 +5,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
+import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.View.OnClickListener;
 import android.view.View;
@@ -25,7 +27,7 @@ public class MainActivity extends Activity implements OnClickListener {
     private static ArrayList<Map.Entry<String, String>> makeResponseMap() {
         final List<String> answer = Arrays.asList(
                 "walk",  "Walk 10 more minutes",
-                "eat",   "Elminate snacks for the rest of the day",
+                "eat",   "No snacks for the rest of the day",
                 "run",   "Run around the block today",
                 "fnord", "Don't see the fnords"
         );
@@ -44,15 +46,30 @@ public class MainActivity extends Activity implements OnClickListener {
         = makeResponseMap();
 
     private static String getResponse(String request) {
-        final String great = "You're doing great! ";
-        final String attaboy = " and you'll beat your record this week!";
+        final String great = "You're doing great!\n";
+        final String attaboy = "\nand you'll beat your record this week!";
+        final String oops = "I'm sorry.  I did not understand that.";
         for (Map.Entry<String, String> e: responseMap) {
             if (request.contains(e.getKey())) {
                 return great + e.getValue() + attaboy;
             }
         }
-        return request;
+        return oops;
     }
+
+    private TextToSpeech makeTextToSpeech() {
+        final TextToSpeech.OnInitListener listener
+            = new TextToSpeech.OnInitListener() {
+                    @Override
+                    public void onInit(int status) {
+                        Log.v(TAG, "TextToSpeech.OnInitListener.onInit()"
+                                + " status == " + status);
+                    } 
+                };
+        return new TextToSpeech(this, listener);
+    }
+
+    private TextToSpeech mTextToSpeech;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +77,7 @@ public class MainActivity extends Activity implements OnClickListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         findViewById(R.id.button).setOnClickListener(this);
+        mTextToSpeech = makeTextToSpeech();
     }
 
     private Intent makeIntent() {
@@ -100,7 +118,13 @@ public class MainActivity extends Activity implements OnClickListener {
                 = intent.getStringArrayListExtra(
                         RecognizerIntent.EXTRA_RESULTS);
             final TextView tv = (TextView) findViewById(R.id.text);
+            final String request = said.get(0);
+            final String response = getResponse(request);
             tv.setText(getResponse(said.get(0)));
+            if (!request.equals(response)) {
+                mTextToSpeech.setLanguage(Locale.US);
+                mTextToSpeech.speak(response, TextToSpeech.QUEUE_FLUSH, null);
+            }
         }
     }
 }
