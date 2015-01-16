@@ -117,10 +117,12 @@ public class MainActivity extends Activity implements OnClickListener {
             final ArrayList<String> said
                 = intent.getStringArrayListExtra(
                         RecognizerIntent.EXTRA_RESULTS);
-            final TextView tv = (TextView) findViewById(R.id.text);
+            final TextView input  = (TextView) findViewById(R.id.input);
+            final TextView output = (TextView) findViewById(R.id.output);
             final String request = said.get(0);
             final String response = getResponse(request);
-            tv.setText(getResponse(said.get(0)));
+            input.setText(request);
+            output.setText(response);
             if (!request.equals(response)) {
                 mTextToSpeech.setLanguage(Locale.US);
                 mTextToSpeech.speak(response, TextToSpeech.QUEUE_FLUSH, null);
