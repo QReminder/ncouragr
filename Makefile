@@ -11,6 +11,8 @@ PACKAGE := com.qrclab.ncouragr
 
 MAYBE_RESET_USB := test "$(ANDROID_USB)" && $(ADB) usb && sleep 1 || true
 
+OSASCRIPT := /usr/bin/osascript -e
+
 # Task names extracted from output of './gradlew tasks' and re-ordered
 # slightly.
 #
@@ -50,13 +52,16 @@ $(GRADLETASKS):
 	./gradlew $@
 .PHONY: $(GRADLETASKS)
 
+define HEY
+$(OSASCRIPT) 'display notification"'"$(1)"'"with title "''Hey Human!''"'
+endef
 
 debug: installDebug
 	$(MAYBE_RESET_USB)
 	$(ADB) logcat -c
 	$(ADB) shell pm path $(PACKAGE)
 	$(ADB) shell am start -n $(PACKAGE)/$(PACKAGE).MainActivity
-	hey you
+	$(call HEY, Android is done.)
 	$(ADB) logcat
 	# $(ADB) shell pm dump $(PACKAGE)
 .PHONY: debug
