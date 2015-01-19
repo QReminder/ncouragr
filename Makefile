@@ -56,7 +56,8 @@ define HEY
 $(OSASCRIPT) 'display notification"'"$(1)"'"with title "''Hey Human!''"'
 endef
 
-debug: installDebug
+debug:
+	./gradlew app:installDebug
 	$(MAYBE_RESET_USB)
 	$(ADB) logcat -c
 	$(ADB) shell pm path $(PACKAGE)
@@ -65,6 +66,41 @@ debug: installDebug
 	$(ADB) logcat
 	# $(ADB) shell pm dump $(PACKAGE)
 .PHONY: debug
+
+mobile:
+	./gradlew mobile:installDebug
+	$(MAYBE_RESET_USB)
+	$(ADB) logcat -c
+	$(ADB) shell pm path $(PACKAGE)
+	$(ADB) shell am start -n $(PACKAGE)/$(PACKAGE).MainActivity
+	$(call HEY, Android $@ is ready.)
+	$(ADB) logcat
+	# $(ADB) shell pm dump $(PACKAGE)
+.PHONY: mobile
+
+wearable:
+	./gradlew wearable:installDebug
+	$(MAYBE_RESET_USB)
+	$(ADB) logcat -c
+	$(ADB) shell pm path $(PACKAGE)
+	$(ADB) shell am start -n $(PACKAGE)/$(PACKAGE).MainActivity
+	$(call HEY, Android $@ is ready.)
+	$(ADB) logcat
+	# $(ADB) shell pm dump $(PACKAGE)
+.PHONY: wearable
+
+bluetooth:			# Debug wearable over bluetooth.
+	./gradlew wearable:installDebug
+	$(MAYBE_RESET_USB)
+	$(ADB) forward tcp:4444 localabstract:/adb-hub
+	$(ADB) connect localhost:4444
+	$(ADB) -s localhost:4444 logcat -c
+	$(ADB) -s localhost:4444 shell pm path $(PACKAGE)
+	$(ADB) -s localhost:4444 shell am start -n $(PACKAGE)/$(PACKAGE).MainActivity
+	$(call HEY, Android $@ is ready.)
+	$(ADB) -s localhost:4444 logcat
+	# $(ADB) -s localhost:4444 shell pm dump $(PACKAGE)
+.PHONY: bluetooth
 
 
 INSTRUMENT := $(PACKAGE).test/android.test.InstrumentationTestRunner
@@ -128,3 +164,6 @@ TAGS tags: . $(LIBRARIES) $(ANDROIDSOURCES)
 distclean: clean
 	rm -f TAGS
 .PHONY: distclean
+
+# adb forward tcp:4444 localabstract:/adb-hub
+# adb connect localhost:4444
