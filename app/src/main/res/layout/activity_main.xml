@@ -15,32 +15,26 @@
 
     <TextView
         android:id="@+id/output"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
         android:layout_height="wrap_content"
         android:layout_margin="23dp"
         android:layout_width="wrap_content"
-        android:text="Talk to me."
+        android:text="@string/talk"
         />
 
     <ImageButton
         android:id="@+id/button"
-        android:layout_below="@+id/text"
-        android:layout_centerHorizontal="true"
         android:layout_height="wrap_content"
         android:layout_margin="23dp"
         android:layout_width="fill_parent"
         android:src="@drawable/ic_btn_speak_now"
-        />
+        android:contentDescription="@string/press" />
 
     <TextView
         android:id="@+id/input"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
         android:layout_height="wrap_content"
         android:layout_margin="23dp"
         android:layout_width="wrap_content"
-        android:text="Talk to me."
+        android:text="@string/talk"
         />
 
 </LinearLayout>

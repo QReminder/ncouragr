@@ -1,23 +1,22 @@
 package com.qrclab.ncouragr;
 
-import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
-import android.view.View.OnClickListener;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 public class MainActivity extends Activity implements OnClickListener {
 
@@ -32,12 +31,13 @@ public class MainActivity extends Activity implements OnClickListener {
                 "fnord", "Don't see the fnords"
         );
         final ArrayList<Map.Entry<String, String>> result
-            = new ArrayList<Map.Entry<String, String>>();
+            = new ArrayList<>();
         for (int i = 0; i < answer.size(); ++i) {
             final Map.Entry<String, String> e
-                = new AbstractMap.SimpleEntry(answer.get(i), answer.get(++i));
+                = new AbstractMap.SimpleEntry<>(
+                        answer.get(i), answer.get(++i));
             final boolean ok = result.add(e);
-            assert(ok);
+            if ((!ok)) throw new AssertionError();
         }
         return result;
     }

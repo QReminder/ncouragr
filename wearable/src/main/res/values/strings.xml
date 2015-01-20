@@ -2,7 +2,9 @@
 <resources>
 
     <string name="app_name">Ncouragr</string>
-    <string name="hello_round">Hello Round World!</string>
-    <string name="hello_square">Hello Square World!</string>
+    <string name="start_command">encourager</string>
+    <string name="cannot_hear">I cannot hear you now.</string>
+    <string name="talk">Talk to me.</string>
+    <string name="ellipsis">...</string>
 
 </resources>
