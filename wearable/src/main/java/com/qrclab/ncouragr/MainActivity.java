@@ -33,7 +33,7 @@ public class MainActivity extends Activity {
                 "walk",  "walk ten more minutes",
                 "eat",   "no snacks for the rest of the day",
                 "run",   "run around the block today",
-                "fnord", "don't see the fnords"
+                "fnord", "do not see the fnords"
         );
         final ArrayList<Map.Entry<String, String>> result = new ArrayList<>();
         for (int i = 0; i < answer.size(); ++i) {

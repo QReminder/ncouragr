@@ -23,12 +23,17 @@ public class MainActivity extends Activity implements OnClickListener {
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int SPEECH_REQUEST_CODE = 0;
 
+    private TextToSpeech mTextToSpeech;
+
+    private TextView mInputTextView;
+    private TextView mOutputTextView;
+
     private static ArrayList<Map.Entry<String, String>> makeResponseMap() {
         final List<String> answer = Arrays.asList(
-                "walk",  "Walk 10 more minutes",
-                "eat",   "No snacks for the rest of the day",
-                "run",   "Run around the block today",
-                "fnord", "Don't see the fnords"
+                "walk",  "walk ten more minutes",
+                "eat",   "no snacks for the rest of the day",
+                "run",   "run around the block today",
+                "fnord", "do not see the fnords"
         );
         final ArrayList<Map.Entry<String, String>> result
             = new ArrayList<>();
@@ -69,13 +74,13 @@ public class MainActivity extends Activity implements OnClickListener {
         return new TextToSpeech(this, listener);
     }
 
-    private TextToSpeech mTextToSpeech;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.v(TAG, "onCreate() savedInstanceState == " + savedInstanceState);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mInputTextView  = (TextView) findViewById(R.id.input);
+        mOutputTextView = (TextView) findViewById(R.id.output);
         findViewById(R.id.button).setOnClickListener(this);
         mTextToSpeech = makeTextToSpeech();
     }
@@ -105,11 +110,20 @@ public class MainActivity extends Activity implements OnClickListener {
         }
     }
 
+    private void maybeTalkBack(String request, String response) {
+        if (mTextToSpeech == null) return;
+        if (request.equals(response)) return;
+        mTextToSpeech.setLanguage(Locale.US);
+        mTextToSpeech.speak(response, TextToSpeech.QUEUE_FLUSH, null);
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         Log.v(TAG, "onActivityResult() requestCode == " + requestCode);
         Log.v(TAG, "onActivityResult() resultCode == " + resultCode);
         super.onActivityResult(requestCode, resultCode, intent);
+        if (mInputTextView == null) throw new AssertionError();
+        if (mOutputTextView == null) throw new AssertionError();
         final boolean ok
             =  requestCode == SPEECH_REQUEST_CODE
             && resultCode  == RESULT_OK;
@@ -117,16 +131,11 @@ public class MainActivity extends Activity implements OnClickListener {
             final ArrayList<String> said
                 = intent.getStringArrayListExtra(
                         RecognizerIntent.EXTRA_RESULTS);
-            final TextView input  = (TextView) findViewById(R.id.input);
-            final TextView output = (TextView) findViewById(R.id.output);
             final String request = said.get(0);
             final String response = getResponse(request);
-            input.setText(request);
-            output.setText(response);
-            if (!request.equals(response)) {
-                mTextToSpeech.setLanguage(Locale.US);
-                mTextToSpeech.speak(response, TextToSpeech.QUEUE_FLUSH, null);
-            }
+            mInputTextView.setText(request);
+            mOutputTextView.setText(response);
+            maybeTalkBack(request, response);
         }
     }
 }

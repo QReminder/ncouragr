@@ -11,13 +11,33 @@
     tools:deviceIds="wear_round"
     >
 
-    <FrameLayout
+    <LinearLayout
         android:id="@+id/face"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:orientation="vertical"
         android:padding="5dp"
         app:layout_box="all"
         >
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="onStartTimer"
+            android:text="@string/start_timer"/>
+
+        <android.support.wearable.view.DelayedConfirmationView
+            android:id="@+id/delayed_confirmation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_launcher"
+            app:circle_color="@color/blue"
+            app:circle_radius="@dimen/circle_radius"
+            app:circle_radius_pressed="@dimen/circle_radius_pressed"
+            app:circle_padding="@dimen/circle_padding"
+            app:circle_border_width="@dimen/circle_border_normal_width"
+            app:circle_border_color="@color/white"/>
 
         <TextView
             android:id="@+id/input"
@@ -33,6 +53,6 @@
             android:text="@string/ellipsis"
             />
 
-    </FrameLayout>
+    </LinearLayout>>
 
 </android.support.wearable.view.BoxInsetLayout>
