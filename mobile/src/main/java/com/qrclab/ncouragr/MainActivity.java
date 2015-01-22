@@ -57,6 +57,7 @@ public class MainActivity extends Activity implements OnClickListener {
         = makeResponseMap();
 
     private static String getResponse(String request) {
+        Log.v(TAG, "getResponse() request == " + request);
         final String great = "You're doing great!\n";
         final String attaboy = "\nand you'll beat your record this week!";
         final String oops = "I'm sorry.  I did not understand that.";
@@ -125,12 +126,53 @@ public class MainActivity extends Activity implements OnClickListener {
         return result;
     }
 
+    private String getSpokenText() {
+        Log.v(TAG, "getSpokenText()");
+        String result = "";
+        final Bundle bundle = RemoteInput.getResultsFromIntent(getIntent());
+        if (bundle != null) {
+            final CharSequence cs
+                = bundle.getCharSequence("extra_voice_reply");
+            if (cs != null) {
+                final String s = cs.toString();
+                if (s != null) result = s;
+            }
+        }
+        Log.v(TAG, "getSpokenText() returns " + result);
+        return result;
+    }
+
+    private void maybeTalkBack(String request, String response) {
+        if (mTextToSpeech == null) return;
+        if (request.equals(response)) return;
+        mTextToSpeech.setLanguage(Locale.US);
+        mTextToSpeech.speak(response, TextToSpeech.QUEUE_FLUSH, null);
+    }
+
+    private void updateDisplay(String request) {
+        Log.v(TAG, "updateDisplay() request == " + request);
+        if (mInputTextView == null) throw new AssertionError();
+        if (mOutputTextView == null) throw new AssertionError();
+        final String response = getResponse(request);
+        mInputTextView.setText(request);
+        mOutputTextView.setText(response);
+        maybeTalkBack(request, response);
+    }
+
     @Override
     protected void onResume() {
         Log.v(TAG, "onResume()");
         super.onResume();
-        final int id = putNotification("Ncouragr", "start Ncouragr on watch");
-        Log.v(TAG, "onResume() id == " + id);
+        final String request = getSpokenText();
+        if (request.isEmpty()) {
+            final int id
+                = putNotification(getString(R.string.app_name),
+                    getString(R.string.start));
+            Log.v(TAG, "onResume() id == " + id);
+        } else {
+            Log.v(TAG, "onResume() request == " + request);
+            updateDisplay(request);
+        }
     }
 
     private Intent makeRecognizerIntent() {
@@ -158,20 +200,11 @@ public class MainActivity extends Activity implements OnClickListener {
         }
     }
 
-    private void maybeTalkBack(String request, String response) {
-        if (mTextToSpeech == null) return;
-        if (request.equals(response)) return;
-        mTextToSpeech.setLanguage(Locale.US);
-        mTextToSpeech.speak(response, TextToSpeech.QUEUE_FLUSH, null);
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         Log.v(TAG, "onActivityResult() requestCode == " + requestCode);
         Log.v(TAG, "onActivityResult() resultCode == " + resultCode);
         super.onActivityResult(requestCode, resultCode, intent);
-        if (mInputTextView == null) throw new AssertionError();
-        if (mOutputTextView == null) throw new AssertionError();
         final boolean ok
             =  requestCode == SPEECH_REQUEST_CODE
             && resultCode  == RESULT_OK;
@@ -180,10 +213,7 @@ public class MainActivity extends Activity implements OnClickListener {
                 = intent.getStringArrayListExtra(
                         RecognizerIntent.EXTRA_RESULTS);
             final String request = said.get(0);
-            final String response = getResponse(request);
-            mInputTextView.setText(request);
-            mOutputTextView.setText(response);
-            maybeTalkBack(request, response);
+            updateDisplay(request);
         }
     }
 }
