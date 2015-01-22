@@ -1,10 +1,16 @@
 package com.qrclab.ncouragr;
 
 import android.app.Activity;
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationCompat.WearableExtender;
+import android.support.v4.app.NotificationManagerCompat;
+import android.support.v4.app.RemoteInput;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -21,7 +27,7 @@ import java.util.Map;
 public class MainActivity extends Activity implements OnClickListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-    private static final int SPEECH_REQUEST_CODE = 0;
+    private static final int SPEECH_REQUEST_CODE = 1;
 
     private TextToSpeech mTextToSpeech;
 
@@ -33,7 +39,7 @@ public class MainActivity extends Activity implements OnClickListener {
                 "walk",  "walk ten more minutes",
                 "eat",   "no snacks for the rest of the day",
                 "run",   "run around the block today",
-                "fnord", "do not see the fnords"
+                "fnord", "do not see the fnord"
         );
         final ArrayList<Map.Entry<String, String>> result
             = new ArrayList<>();
@@ -69,7 +75,7 @@ public class MainActivity extends Activity implements OnClickListener {
                     public void onInit(int status) {
                         Log.v(TAG, "TextToSpeech.OnInitListener.onInit()"
                                 + " status == " + status);
-                    } 
+                    }
                 };
         return new TextToSpeech(this, listener);
     }
@@ -85,7 +91,49 @@ public class MainActivity extends Activity implements OnClickListener {
         mTextToSpeech = makeTextToSpeech();
     }
 
-    private Intent makeIntent() {
+    Notification makeWearableNotification() {
+        final RemoteInput remoteInput
+            = new RemoteInput.Builder("extra_voice_reply")
+            .setLabel(getString(R.string.talk))
+            .build();
+        final Intent replyIntent = new Intent(this, MainActivity.class);
+        final PendingIntent replyPendingIntent =
+            PendingIntent.getActivity(this, 0, replyIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT);
+        final NotificationCompat.Action action =
+            new NotificationCompat.Action.Builder(R.drawable.ic_launcher,
+                    getString(R.string.app_name), replyPendingIntent)
+            .addRemoteInput(remoteInput)
+            .build();
+        final Notification result =
+            new NotificationCompat.Builder(this)
+            .setSmallIcon(R.drawable.ic_launcher)
+            .setContentTitle(getString(R.string.app_name))
+            .setContentText(getString(R.string.talk))
+            .extend(new WearableExtender().addAction(action))
+            .build();
+        return result;
+    }
+
+    private int nextEventId = 0;
+    private int putNotification(String title, String event) {
+        final int result = ++nextEventId;
+        final Notification notification = makeWearableNotification();
+        final NotificationManagerCompat nm
+            = NotificationManagerCompat.from(this);
+        nm.notify(result, notification);
+        return result;
+    }
+
+    @Override
+    protected void onResume() {
+        Log.v(TAG, "onResume()");
+        super.onResume();
+        final int id = putNotification("Ncouragr", "start Ncouragr on watch");
+        Log.v(TAG, "onResume() id == " + id);
+    }
+
+    private Intent makeRecognizerIntent() {
         final Intent result
             = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         result.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
@@ -102,7 +150,7 @@ public class MainActivity extends Activity implements OnClickListener {
     public void onClick(View view) {
         Log.v(TAG, "onClick() view == " + view);
         try {
-            final Intent intent = makeIntent();
+            final Intent intent = makeRecognizerIntent();
             startActivityForResult(intent, SPEECH_REQUEST_CODE);
         } catch (Exception x) {
             Toast.makeText(this, R.string.cannot_hear, Toast.LENGTH_LONG)
