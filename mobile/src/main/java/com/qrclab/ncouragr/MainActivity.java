@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
-import android.speech.tts.TextToSpeech;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.WearableExtender;
 import android.support.v4.app.NotificationManagerCompat;
@@ -23,7 +22,6 @@ import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 public class MainActivity extends Activity implements OnClickListener {
@@ -33,7 +31,7 @@ public class MainActivity extends Activity implements OnClickListener {
 
     private Context mContext;
 
-    private TextToSpeech mTextToSpeech;
+    private Talker mTalker;
 
     private ImageButton mButton;
     private TextView mInputTextView;
@@ -74,40 +72,6 @@ public class MainActivity extends Activity implements OnClickListener {
         return oops;
     }
 
-    private TextToSpeech makeTextToSpeech() {
-        final TextToSpeech.OnInitListener listener
-            = new TextToSpeech.OnInitListener() {
-                    @Override
-                    public void onInit(int status) {
-                        final String me
-                            = "TextToSpeech.OnInitListener.onInit()";
-                            Log.v(TAG, me + " status == " + status);
-                        if (status == TextToSpeech.SUCCESS) {
-                            final int lang
-                                = mTextToSpeech.setLanguage(Locale.US);
-                            final boolean no
-                                =  lang == TextToSpeech.LANG_MISSING_DATA
-                                || lang == TextToSpeech.LANG_NOT_SUPPORTED;
-                            if (no) {
-                                Log.v(TAG, me + " lang == " + lang);
-                                Toast.makeText(mContext, R.string.dumb,
-                                        Toast.LENGTH_LONG) .show();
-                            } else {
-                                mButton.setEnabled(true);
-                            }
-                        }
-                    }
-                };
-        return new TextToSpeech(this, listener);
-    }
-
-    @Override
-    protected void onDestroy() {
-        Log.v(TAG, "onDestroy()");
-        super.onDestroy();
-        if (mTextToSpeech != null) mTextToSpeech.shutdown();
-    }
-
     @Override
     protected void onCreate(Bundle bundle) {
         Log.v(TAG, "onCreate() bundle == " + bundle);
@@ -115,8 +79,6 @@ public class MainActivity extends Activity implements OnClickListener {
         setContentView(R.layout.activity_main);
         mContext = this;
         mButton = (ImageButton) findViewById(R.id.button);
-        mButton.setEnabled(false);
-        mTextToSpeech = makeTextToSpeech();
         mInputTextView  = (TextView) findViewById(R.id.input);
         mOutputTextView = (TextView) findViewById(R.id.output);
         findViewById(R.id.button).setOnClickListener(this);
@@ -147,10 +109,8 @@ public class MainActivity extends Activity implements OnClickListener {
     }
 
     private int nextId = 0;
-    private int getNextId() { return ++nextId; }
-    
     private int putNotification(String title, String event) {
-        final int result = getNextId();
+        final int result = ++nextId;
         final Notification notification = makeWearableNotification();
         final NotificationManagerCompat nm
             = NotificationManagerCompat.from(this);
@@ -174,21 +134,16 @@ public class MainActivity extends Activity implements OnClickListener {
         return result;
     }
 
-    private void maybeTalkBack(String request, String response) {
-        Log.v(TAG, "maybeTalkBack() mTextToSpeech == " + mTextToSpeech);
-        if (mTextToSpeech == null) return;
-        mTextToSpeech.speak(response, TextToSpeech.QUEUE_FLUSH, null);
-    }
-
-    private void updateDisplay(String request) {
-        Log.v(TAG, "updateDisplay() request == " + request);
+    private void updateUi(String request) {
+        Log.v(TAG, "updateUi() request == " + request);
         if (mInputTextView == null) throw new AssertionError();
         if (mOutputTextView == null) throw new AssertionError();
         final String response = getResponse(request);
-        Log.v(TAG, "updateDisplay() response == " + response);
+        Log.v(TAG, "updateUi() response == " + response);
+        mTalker = new Talker(this, response);
         mInputTextView.setText(request);
         mOutputTextView.setText(response);
-        maybeTalkBack(request, response);
+        mButton.setEnabled(true);
     }
 
     @Override
@@ -199,11 +154,11 @@ public class MainActivity extends Activity implements OnClickListener {
         if (request.isEmpty()) {
             final int id
                 = putNotification(getString(R.string.app_name),
-                    getString(R.string.start));
+                        getString(R.string.start));
             Log.v(TAG, "onResume() id == " + id);
         } else {
             Log.v(TAG, "onResume() request == " + request);
-            updateDisplay(request);
+            updateUi(request);
         }
     }
 
@@ -224,19 +179,19 @@ public class MainActivity extends Activity implements OnClickListener {
     public void onClick(View view) {
         Log.v(TAG, "onClick() view == " + view);
         try {
+            mButton.setEnabled(false);
             final Intent intent = makeRecognizerIntent();
             startActivityForResult(intent, SPEECH_REQUEST_CODE);
         } catch (Exception x) {
-            Toast.makeText(this, R.string.deaf, Toast.LENGTH_LONG)
-                .show();
+            Toast.makeText(this, R.string.deaf, Toast.LENGTH_LONG).show();
         }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
         Log.v(TAG, "onActivityResult() requestCode == " + requestCode);
         Log.v(TAG, "onActivityResult() resultCode == " + resultCode);
-        super.onActivityResult(requestCode, resultCode, intent);
         final boolean ok
             =  requestCode == SPEECH_REQUEST_CODE
             && resultCode  == RESULT_OK;
@@ -245,7 +200,7 @@ public class MainActivity extends Activity implements OnClickListener {
                 = intent.getStringArrayListExtra(
                         RecognizerIntent.EXTRA_RESULTS);
             final String request = said.get(0);
-            updateDisplay(request);
+            updateUi(request);
         }
     }
 }
