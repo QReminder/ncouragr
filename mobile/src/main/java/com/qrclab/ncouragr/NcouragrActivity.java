@@ -88,8 +88,14 @@ public class NcouragrActivity extends Activity implements OnClickListener
     private String getSpokenText() {
         Log.v(TAG, "getSpokenText()");
         String result = "";
-        final Bundle bundle = RemoteInput.getResultsFromIntent(getIntent());
-        if (bundle != null) {
+        final Intent intent = getIntent();
+        final Bundle bundle = RemoteInput.getResultsFromIntent(intent);
+        if (bundle == null) {
+            final ArrayList<String> said
+                = intent.getStringArrayListExtra(
+                        RecognizerIntent.EXTRA_RESULTS);
+            if (said != null) result = said.get(0);
+        } else {
             final CharSequence cs
                 = bundle.getCharSequence("extra_voice_reply");
             if (cs != null) {
@@ -155,6 +161,13 @@ public class NcouragrActivity extends Activity implements OnClickListener
     }
 
     @Override
+    public void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        Log.v(TAG, "onNewIntent() intent == " + intent);
+        setIntent(intent);
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
         Log.v(TAG, "onActivityResult() requestCode == " + requestCode);
@@ -163,11 +176,8 @@ public class NcouragrActivity extends Activity implements OnClickListener
             =  requestCode == SPEECH_REQUEST_CODE
             && resultCode  == RESULT_OK;
         if (ok) {
-            final ArrayList<String> said
-                = intent.getStringArrayListExtra(
-                        RecognizerIntent.EXTRA_RESULTS);
-            final String request = said.get(0);
-            updateUi(request);
+            setIntent(intent);
+            onResume();
         }
     }
 }

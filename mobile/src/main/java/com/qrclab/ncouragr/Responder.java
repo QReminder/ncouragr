@@ -19,7 +19,7 @@ public class Responder
         final List<String> answer = Arrays.asList(
                 "eat",   "no snacks for the rest of the day",
                 "jump",  "keep jumping until i say stop",
-                "noise", "fo shizzle dude",
+                "noise", "pho shizzle dude",
                 "run",   "run around the block today",
                 "walk",  "walk ten more minutes",
                 "fnord", "do not see the fnord"
@@ -43,7 +43,7 @@ public class Responder
     public static String respondTo(String request) {
         Log.v(TAG, "request == " + request);
         final String great = "You're doing great!\n";
-        final String attaboy = "\nand you'll beat your record this week!";
+        final String attaboy = "\nand you will beat your record this week!";
         final String oops = "I'm sorry.  I did not understand that.";
         for (Map.Entry<String, String> e: responseMap) {
             if (request.contains(e.getKey())) {
