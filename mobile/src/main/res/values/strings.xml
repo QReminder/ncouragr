@@ -2,7 +2,8 @@
 <resources>
 
     <string name="app_name">Ncouragr</string>
-    <string name="cannot_hear">I cannot hear you now.</string>
+    <string name="deaf">I cannot hear you now.</string>
+    <string name="dumb">I cannot speak.</string>
     <string name="start">Start Ncourager on watch.</string>
     <string name="talk">Talk to me.</string>
     <string name="press">Press to talk.</string>
