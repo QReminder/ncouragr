@@ -175,9 +175,6 @@ public class NcouragrActivity extends Activity implements OnClickListener
         final boolean ok
             =  requestCode == SPEECH_REQUEST_CODE
             && resultCode  == RESULT_OK;
-        if (ok) {
-            setIntent(intent);
-            onResume();
-        }
+        if (ok) setIntent(intent);
     }
 }
