@@ -8,6 +8,8 @@ ANDROIDAPIS := $(API) # Add others as required.
 ANDROIDSOURCES := $(addprefix $(ANDROID_HOME)/sources/,$(ANDROIDAPIS))
 
 PACKAGE := com.qrclab.ncouragr
+MAINACTIVITY := NcouragrActivity
+STARTER := $(PACKAGE)/$(PACKAGE).$(MAINACTIVITY)
 
 MAYBE_RESET_USB := test "$(ANDROID_USB)" && $(ADB) usb && sleep 1 || true
 
@@ -61,7 +63,7 @@ debug:
 	$(MAYBE_RESET_USB)
 	$(ADB) logcat -c
 	$(ADB) shell pm path $(PACKAGE)
-	$(ADB) shell am start -n $(PACKAGE)/$(PACKAGE).MainActivity
+	$(ADB) shell am start -n $(STARTER)
 	$(call HEY, Android is done.)
 	$(ADB) logcat
 	# $(ADB) shell pm dump $(PACKAGE)
@@ -72,7 +74,7 @@ mobile:
 	$(MAYBE_RESET_USB)
 	$(ADB) logcat -c
 	$(ADB) shell pm path $(PACKAGE)
-	$(ADB) shell am start -n $(PACKAGE)/$(PACKAGE).MainActivity
+	$(ADB) shell am start -n $(STARTER)
 	$(call HEY, Android $@ is ready.)
 	$(ADB) logcat
 	# $(ADB) shell pm dump $(PACKAGE)
@@ -83,7 +85,7 @@ wearable:
 	$(MAYBE_RESET_USB)
 	$(ADB) logcat -c
 	$(ADB) shell pm path $(PACKAGE)
-	$(ADB) shell am start -n $(PACKAGE)/$(PACKAGE).MainActivity
+	$(ADB) shell am start -n $(STARTER)
 	$(call HEY, Android $@ is ready.)
 	$(ADB) logcat
 	# $(ADB) shell pm dump $(PACKAGE)
@@ -96,7 +98,7 @@ bluetooth:			# Debug wearable over bluetooth.
 	$(ADB) connect localhost:4444
 	$(ADB) -s localhost:4444 logcat -c
 	$(ADB) -s localhost:4444 shell pm path $(PACKAGE)
-	$(ADB) -s localhost:4444 shell am start -n $(PACKAGE)/$(PACKAGE).MainActivity
+	$(ADB) -s localhost:4444 shell am start -n $(STARTER)
 	$(call HEY, Android $@ is ready.)
 	$(ADB) -s localhost:4444 logcat
 	# $(ADB) -s localhost:4444 shell pm dump $(PACKAGE)
