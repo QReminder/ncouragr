@@ -18,9 +18,9 @@ public class Talker
     private final Context mContext;
 
     private final TextToSpeech mTts;
-    private final HashMap<String, String> mUtterance
-        = new HashMap<String, String>();
+    private final HashMap<String, String> mUtterance = new HashMap<>();
 
+    @Override
     public void onInit(int status) {
         Log.v(TAG, "onInit() status == " + status);
         if (status == TextToSpeech.SUCCESS) {
@@ -33,16 +33,21 @@ public class Talker
                 Toast.makeText(mContext, R.string.dumb,
                         Toast.LENGTH_LONG).show();
             } else {
+                final int oucl = mTts.setOnUtteranceCompletedListener(this);
+                if (oucl != TextToSpeech.SUCCESS) {
+                    Log.v(TAG, "mTts.setOnUtteranceCompletedListener(this)"
+                            + " oucl == " + oucl);
+                }
                 final String u = mUtterance.get(
                         TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID);
                 Log.v(TAG, "onInit() u == " + u);
-                mTts.setOnUtteranceCompletedListener(this);
                 mTts.speak(u, TextToSpeech.QUEUE_ADD, null);
                 Log.v(TAG, "onInit() called mTts.speak()");
             }
         }
     }
 
+    @Override
     public void onUtteranceCompleted(String id) {
         Log.v(TAG, "onUtteranceCompleted() id == " + id);
         mTts.shutdown();

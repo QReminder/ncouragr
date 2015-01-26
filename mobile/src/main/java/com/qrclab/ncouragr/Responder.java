@@ -16,7 +16,9 @@ public class Responder
     private static final String TAG = Responder.class.getSimpleName();
 
     private static ArrayList<Map.Entry<String, String>> makeResponseMap() {
+        final String beer = "ninety-nine bottles of beer";
         final List<String> answer = Arrays.asList(
+                "drink", beer + " on the wall, " + beer,
                 "eat",   "no snacks for the rest of the day",
                 "jump",  "keep jumping until i say stop",
                 "noise", "pho shizzle dude",
