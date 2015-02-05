@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Ncouragr</string>
+    <string name="app_name">QOCAwear</string>
     <string name="deaf">I cannot hear you now.</string>
-    <string name="dumb">I cannot speak.</string>
-    <string name="start">Start Ncourager on watch.</string>
+    <string name="dumb">I cannot speak now.</string>
+    <string name="start">Start QOCAwear on watch.</string>
     <string name="talk">Talk to me.</string>
     <string name="press">Press to talk.</string>
 

@@ -16,15 +16,21 @@ public class Responder
     private static final String TAG = Responder.class.getSimpleName();
 
     private static ArrayList<Map.Entry<String, String>> makeResponseMap() {
-        final String beer = "ninety-nine bottles of beer";
+        final String pause = " ... ";
         final List<String> answer = Arrays.asList(
-                "drink", beer + " on the wall, " + beer,
-                "eat",   "no snacks for the rest of the day",
-                "jump",  "keep jumping until i say stop",
-                "noise", "pho shizzle dude",
-                "run",   "run around the block today",
-                "walk",  "walk ten more minutes",
-                "fnord", "do not see the fnord"
+                "weather",    "There is an 80% chance of rain this afternoon."
+                /**/          + pause + "The high will be 8 and the low 2.",
+                "help me",    "Sending help to your location now.",
+                "need help",  "Sending help to your location now.",
+                "window",     "Sensors indicate that all windows are closed.",
+                "heat down",  "Your thermostat is currently set to 20.",
+                "thermostat", "Setting thermostat to 15.",
+                "oven off",   "Do not worry. Your oven is off.",
+                "walked",     "You walked 1.3 kilometers so far.",
+                "this week",  "You are doing great!"
+                /**/          + pause + "Walk another half kilometer, "
+                /**/          + "and you will meet your goal for the week.",
+                "fnord",      "Do not see the fnord!"
         );
         final ArrayList<Map.Entry<String, String>> result
             = new ArrayList<>();
@@ -44,13 +50,9 @@ public class Responder
     //
     public static String respondTo(String request) {
         Log.v(TAG, "request == " + request);
-        final String great = "You're doing great!\n";
-        final String attaboy = "\nand you will beat your record this week!";
         final String oops = "I'm sorry.  I did not understand that.";
         for (Map.Entry<String, String> e: responseMap) {
-            if (request.contains(e.getKey())) {
-                return great + e.getValue() + attaboy;
-            }
+            if (request.contains(e.getKey())) return e.getValue();
         }
         return oops;
     }
