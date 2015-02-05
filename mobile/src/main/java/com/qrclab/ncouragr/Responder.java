@@ -16,24 +16,21 @@ public class Responder
     private static final String TAG = Responder.class.getSimpleName();
 
     private static ArrayList<Map.Entry<String, String>> makeResponseMap() {
-        final String pause = " ... ";
         final List<String> answer = Arrays.asList(
                 "weather",    "There is an 80% chance of rain this afternoon."
-                /**/          + pause + "The high will be 8 and the low 2.",
-                "help me",    "Sending help to your location now.",
-                "need help",  "Sending help to your location now.",
+                /**/          + "  The high will be 8 and the low 2.",
                 "window",     "Sensors indicate that all windows are closed.",
                 "heat down",  "Your thermostat is currently set to 20.",
                 "thermostat", "Setting thermostat to 15.",
                 "oven off",   "Do not worry. Your oven is off.",
                 "walked",     "You walked 1.3 kilometers so far.",
                 "this week",  "You are doing great!"
-                /**/          + pause + "Walk another half kilometer, "
-                /**/          + "and you will meet your goal for the week.",
+                /**/          + "  Walk another half kilometer,"
+                /**/          + " and you will meet your goal for the week.",
+                "help",       "Sending help to your location now.",
                 "fnord",      "Do not see the fnord!"
         );
-        final ArrayList<Map.Entry<String, String>> result
-            = new ArrayList<>();
+        final ArrayList<Map.Entry<String, String>> result = new ArrayList<>();
         for (int i = 0; i < answer.size(); ++i) {
             final Map.Entry<String, String> e
                 = new AbstractMap.SimpleEntry<>(
@@ -46,14 +43,14 @@ public class Responder
     private static final ArrayList<Map.Entry<String, String>> responseMap
         = makeResponseMap();
 
-    // Return a canned response to request.
+    // Return sorry or a canned response to request.
     //
-    public static String respondTo(String request) {
+    public static String respondTo(String request, String sorry) {
         Log.v(TAG, "request == " + request);
-        final String oops = "I'm sorry.  I did not understand that.";
+        Log.v(TAG, "sorry == " + sorry);
         for (Map.Entry<String, String> e: responseMap) {
             if (request.contains(e.getKey())) return e.getValue();
         }
-        return oops;
+        return sorry;
     }
 }

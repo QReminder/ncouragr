@@ -95,6 +95,7 @@ public class NcouragrActivity extends Activity implements OnClickListener
                 = intent.getStringArrayListExtra(
                         RecognizerIntent.EXTRA_RESULTS);
             if (said != null) result = said.get(0);
+            intent.removeExtra(RecognizerIntent.EXTRA_RESULTS);
         } else {
             final CharSequence cs
                 = bundle.getCharSequence("extra_voice_reply");
@@ -111,7 +112,8 @@ public class NcouragrActivity extends Activity implements OnClickListener
         Log.v(TAG, "updateUi() request == " + request);
         if (mInputTextView == null) throw new AssertionError();
         if (mOutputTextView == null) throw new AssertionError();
-        final String response = Responder.respondTo(request);
+        final String response
+            = Responder.respondTo(request, getString(R.string.sorry));
         Log.v(TAG, "updateUi() response == " + response);
         mTalkerHackForDebugging = new Talker(this, response);
         mInputTextView.setText(request);
